@@ -39,7 +39,8 @@ var map = {
     CURRENT_LOOP_INDEX: 0,
     RANDOM_GRASS_APPEARANCE: 5,
     INTERVAL_TIME: 300,
-    MAP_WIDTH: 27,
+    MAP_POSSIBLE_WIDTH: Math.floor(screen.width / 50) - 1,
+    MAP_WIDTH: 999,
     MAP_HEIGHT: 10,
     MIN_POSSIBLE_TIME_INTERVAL: 500,
     COORDS_LIST: [],
@@ -94,6 +95,9 @@ var map = {
         }
     },
     createMap: function () {
+        //проверка максимально возможной ширины карты
+        this.MAP_WIDTH = this.MAP_WIDTH > this.MAP_POSSIBLE_WIDTH ? this.MAP_POSSIBLE_WIDTH :this.MAP_WIDTH ;
+
         for (var i = 0; i < this.MAP_HEIGHT; i++) {
             this.COORDS_LIST[i] = [];
             for (var j = 0; j < this.MAP_WIDTH; j++) {
