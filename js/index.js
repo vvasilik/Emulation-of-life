@@ -53,13 +53,14 @@ var map = {
         objectClass: 'stone'
     },
     start: function (newInterval) {
-        if (!$('.map').hasClass('move')) {
+        var mapEl = $('.map');
+        if (!mapEl.hasClass('move')) {
             var self = this;
             if (newInterval === undefined) {
                 newInterval = this.timeInerval;
             }
             this.timeInerval = setInterval($.proxy(self.lookEveryCell, self), newInterval);
-            $('.map').addClass('move');
+            mapEl.addClass('move');
         }
     },
     stop: function () {
@@ -119,7 +120,6 @@ var map = {
                 var energy = this.COORDS_LIST[i][j].energy;
                 var energyСoef = this.COORDS_LIST[i][j].energyKoef;
                 var energySize = '';
-                //if (this.COORDS_LIST[i][j].type === 'cow') {debugger}
                 if (energyСoef === undefined) {
                     energySize = 'no-energy';
                 } else if (energy < energyСoef/5) {
@@ -162,10 +162,14 @@ var map = {
     },
     mapCellClick: function (cell) {
         map.stop();
+        map.deleteNav();
         $(cell).prepend($('.cell-nav-holder').html());
-        var clickedPositionList = $(cell).data('pos').split(',');
-        var clickedObject = this.COORDS_LIST[clickedPositionList[0]][clickedPositionList[1]];
         $.proxy(map.addCellListeners(), map);
+    },
+    deleteNav: function () {
+        $('.map .cell-nav').each(function () {
+          $(this).remove();
+        });
     },
     addCellListeners: function () {
         $('._cell-nav-cancel').on('click', this.closeCellNav);
