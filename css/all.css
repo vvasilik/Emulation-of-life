@@ -1,28 +1,30 @@
 body{
-	margin:0;
-	color:#000;
-	font:16px/18px Ubuntu, Arial, Helvetica, sans-serif;
-	min-width:980px;
-	-webkit-text-size-adjust:100%;
+	margin: 0;
+	color: #000;
+	font: 16px/18px Ubuntu, Arial, Helvetica, sans-serif;
+	min-width: 320px;
+	-webkit-text-size-adjust: 100%;
 	-ms-text-size-adjust: none;
 	background-color: #fff;
 }
 img{
-	border-style:none;
-	vertical-align:top;
+	border-style: none;
+	vertical-align: top;
 }
-a:active{background-color:transparent;}
+a:active{
+	background-color: transparent;
+}
 input,
 textarea,
 select{
-	font:100% Arial, Helvetica, sans-serif;
-	vertical-align:middle;
-	color:#000;
+	font: 100% Arial, Helvetica, sans-serif;
+	vertical-align: middle;
+	color: #000;
 }
 form,fieldset{
-	margin:0;
-	padding:0;
-	border-style:none;
+	margin: 0;
+	padding: 0;
+	border-style: none;
 }
 header,
 footer,
@@ -30,10 +32,12 @@ article,
 section,
 nav,
 figure,
-aside{display:block;}
+aside{
+	display: block;
+}
 figure{
-	margin:0;
-	padding:0;
+	margin: 0;
+	padding: 0;
 }
 .nav{
 	overflow: hidden;
