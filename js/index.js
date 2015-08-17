@@ -140,7 +140,7 @@ var map = {
                 } else {
                     energySize = 'e5';
                 }
-                mapList = mapList + '<li class="map-frame ' + this.COORDS_LIST[i][j].objectClass + '" data-pos="' + [i, j] + '"><span class="energy ' + energySize + '"></li>'
+                mapList = mapList + '<li class="map-frame ' + this.COORDS_LIST[i][j].objectClass + '" data-pos="' + [i, j] + '"><span class="energy ' + energySize + '"></span></li>'
             }
             mapList = mapList + '<br />'
         }
@@ -269,40 +269,112 @@ var map = {
         if (!emptyCellsList) {
             return {xPos: mapObject.xPos, yPos: mapObject.yPos, energy: mapObject.energy - mapObject.moveStepEnergy}
         }
-        var randomMoveIndex = Math.floor(Math.random() * emptyCellsList.length);
+        var randomEmptyCell = this.randomUseKoef(emptyCellsList);
         var energy = Math.floor(Math.random() * (mapObject.maxRandomEnergy - mapObject.minRandomEnergy + 1) + mapObject.minRandomEnergy);
-        return {xPos: emptyCellsList[randomMoveIndex][0], yPos: emptyCellsList[randomMoveIndex][1], energy: energy};
+        return {xPos: randomEmptyCell.xPos, yPos: randomEmptyCell.yPos, energy: energy};
     },
+
+    randomUseKoef: function (list) {
+        var koefSum = 0;
+        for (var i=0; i<list.length; i++) {
+            koefSum += list[i].koefPossibilityEnter;
+        }
+
+        var etalon = 100 / koefSum;
+        for (var i=0; i<list.length; i++) {
+            list[i].procent = list[i].koefPossibilityEnter * etalon;
+        }
+
+        var randomNumber = Math.floor( Math.random() * 100 );
+        var procentSum = 0;
+        for (var i=0; i<list.length; i++) {
+            if (randomNumber >= procentSum && randomNumber < procentSum + list[i].procent) {
+                return list[i];
+            } else {
+                procentSum += list[i].procent;
+            }
+        }
+    },
+
     findEmptyCells: function (mapObject) {
         var emptyCellsList = [];
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos - 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos - 1, mapObject.yPos - 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos - 1,
+                    yPos: mapObject.yPos - 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos - 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos - 1, mapObject.yPos]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos - 1,
+                    yPos: mapObject.yPos,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos + 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos - 1, mapObject.yPos + 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos - 1,
+                    yPos: mapObject.yPos + 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos + 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos][mapObject.yPos - 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos, mapObject.yPos - 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos,
+                    yPos: mapObject.yPos - 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos][mapObject.yPos - 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos][mapObject.yPos + 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos, mapObject.yPos + 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos,
+                    yPos: mapObject.yPos + 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos][mapObject.yPos + 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos - 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos + 1, mapObject.yPos - 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos + 1,
+                    yPos: mapObject.yPos - 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos - 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos + 1, mapObject.yPos]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos + 1,
+                    yPos: mapObject.yPos,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos + 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos + 1, mapObject.yPos + 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos + 1,
+                    yPos: mapObject.yPos + 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos + 1].koefPossibilityEnter
+                }
+            );
         }
 
         //умная корова
-        if (mapObject.type === 'cow' && emptyCellsList.filter(this.filterGrass).length !== 0) {
-            return emptyCellsList.filter(this.filterGrass);
+        var filterGrassList = emptyCellsList.filter(this.filterGrass);
+        if (mapObject.type === 'cow' && filterGrassList.length !== 0) {
+            return filterGrassList;
         }
         //
 
@@ -313,7 +385,7 @@ var map = {
         }
     },
     filterGrass: function (coords) {
-        return map.COORDS_LIST[coords[0]][coords[1]].type === 'grass';
+        return map.COORDS_LIST[coords.xPos][coords.yPos].type === 'grass';
     }
 };
 
