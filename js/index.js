@@ -8,13 +8,13 @@ var Cow = function (mapObject) {
     this.lessEnoughAfterToBorn = 300;
     this.energy = mapObject.energy ||  Math.floor(Math.random() * (this.maxRandomEnergy - this.minRandomEnergy + 1) + this.minRandomEnergy);
     this.energyKoef = 700;
+    this.koefPossibilityEnter = 1;
     this.maxPossibleEnergy = 700;
     this.possibleObjectsToMove = ['empty', 'grass'];
     this.BLOCKED_OBJECT = false;
     this.objectClass = 'cow';
     this.moveStepEnergy = 5;
 };
-
 
 var Grass = function (mapObject) {
     this.type = 'grass';
@@ -26,11 +26,24 @@ var Grass = function (mapObject) {
     this.lessEnoughAfterToBorn = 25;
     this.energy = mapObject.energy ||  Math.floor(Math.random() * (this.maxRandomEnergy - this.minRandomEnergy + 1) + this.minRandomEnergy);
     this.energyKoef = 50;
+    this.koefPossibilityEnter = 1;
     this.maxPossibleEnergy = 50;
     this.possibleObjectsToMove = ['empty'];
     this.BLOCKED_OBJECT = false;
     this.objectClass = 'grass';
     this.addEnergyEveryStep = 1;
+};
+
+var Stone = function () {
+    this.type = 'stone';
+    this.objectClass = 'stone';
+    this.koefPossibilityEnter = 1;
+};
+
+var Empty = function () {
+    this.type = 'empty';
+    this.objectClass = 'empty';
+    this.koefPossibilityEnter = 1;
 };
 
 
@@ -44,22 +57,15 @@ var map = {
     MAP_HEIGHT: 10,
     MIN_POSSIBLE_TIME_INTERVAL: 500,
     COORDS_LIST: [],
-    EMPTY_OBJ: {
-        type: 'empty',
-        objectClass: 'empty'
-    },
-    STONE_OBJ: {
-        type: 'stone',
-        objectClass: 'stone'
-    },
     start: function (newInterval) {
-        if (!$('.map').hasClass('move')) {
+        var mapEl = $('.map');
+        if (!mapEl.hasClass('move')) {
             var self = this;
             if (newInterval === undefined) {
                 newInterval = this.timeInerval;
             }
             this.timeInerval = setInterval($.proxy(self.lookEveryCell, self), newInterval);
-            $('.map').addClass('move');
+            mapEl.addClass('move');
         }
     },
     stop: function () {
@@ -85,11 +91,13 @@ var map = {
                 if (this.COORDS_LIST[i][j].type === 'cow' || this.COORDS_LIST[i][j].type === 'grass') {
                     if (this.COORDS_LIST[i][j].BLOCKED_OBJECT !== this.CURRENT_LOOP_INDEX){
                         if (this.COORDS_LIST[i][j].energy <= 0) {
-                            this.COORDS_LIST[i][j] = this.EMPTY_OBJ;
+                            this.COORDS_LIST[i][j] = new Empty();
                         } else {
                             this.moveObject(this.COORDS_LIST[i][j]);
                         }
                     }
+                } else if (this.COORDS_LIST[i][j].type === 'empty'){
+                  this.COORDS_LIST[i][j].koefPossibilityEnter++ ;
                 }
             }
         }
@@ -102,9 +110,9 @@ var map = {
             this.COORDS_LIST[i] = [];
             for (var j = 0; j < this.MAP_WIDTH; j++) {
                 if (i === 0 || j === 0 || i === this.MAP_HEIGHT - 1 || j === this.MAP_WIDTH - 1) {
-                    this.COORDS_LIST[i][j] = this.STONE_OBJ;
+                    this.COORDS_LIST[i][j] = new Stone();
                 } else {
-                    this.COORDS_LIST[i][j] = this.EMPTY_OBJ;
+                    this.COORDS_LIST[i][j] = new Empty();
                 }
             }
         }
@@ -119,7 +127,6 @@ var map = {
                 var energy = this.COORDS_LIST[i][j].energy;
                 var energyСoef = this.COORDS_LIST[i][j].energyKoef;
                 var energySize = '';
-                //if (this.COORDS_LIST[i][j].type === 'cow') {debugger}
                 if (energyСoef === undefined) {
                     energySize = 'no-energy';
                 } else if (energy < energyСoef/5) {
@@ -133,7 +140,7 @@ var map = {
                 } else {
                     energySize = 'e5';
                 }
-                mapList = mapList + '<li class="map-frame ' + this.COORDS_LIST[i][j].objectClass + '" data-pos="' + [i, j] + '"><span class="energy ' + energySize + '"></li>'
+                mapList = mapList + '<li class="map-frame ' + this.COORDS_LIST[i][j].objectClass + '" data-pos="' + [i, j] + '"><span class="energy ' + energySize + '"></span></li>'
             }
             mapList = mapList + '<br />'
         }
@@ -155,17 +162,21 @@ var map = {
         } else if (mapObject.type === 'grass') {
             this.COORDS_LIST[mapObject.xPos][mapObject.yPos] = new Grass(mapObject);
         } else if (mapObject.type === 'stone') {
-            this.COORDS_LIST[mapObject.xPos][mapObject.yPos] = this.STONE_OBJ;
+            this.COORDS_LIST[mapObject.xPos][mapObject.yPos] = new Stone();
         }
 
         this.show();
     },
     mapCellClick: function (cell) {
         map.stop();
+        map.deleteNav();
         $(cell).prepend($('.cell-nav-holder').html());
-        var clickedPositionList = $(cell).data('pos').split(',');
-        var clickedObject = this.COORDS_LIST[clickedPositionList[0]][clickedPositionList[1]];
         $.proxy(map.addCellListeners(), map);
+    },
+    deleteNav: function () {
+        $('.map .cell-nav').each(function () {
+          $(this).remove();
+        });
     },
     addCellListeners: function () {
         $('._cell-nav-cancel').on('click', this.closeCellNav);
@@ -182,7 +193,7 @@ var map = {
         if (clickedPositionList[0] == 0 || clickedPositionList[1] == 0 || clickedPositionList[0] == this.MAP_HEIGHT - 1 || clickedPositionList[1] == this.MAP_WIDTH - 1){
             alert('Невозможно удалить стену!');
         } else {
-            map.COORDS_LIST[clickedPositionList[0]][clickedPositionList[1]] = map.EMPTY_OBJ;
+            map.COORDS_LIST[clickedPositionList[0]][clickedPositionList[1]] = new Empty();
             map.show();
         }
     },
@@ -198,7 +209,7 @@ var map = {
     },
     addStoneByCell: function () {
         var clickedPositionList = $(this).closest('.map-frame').data('pos').split(',');
-        map.COORDS_LIST[clickedPositionList[0]][clickedPositionList[1]] = map.STONE_OBJ;
+        map.COORDS_LIST[clickedPositionList[0]][clickedPositionList[1]] = new Stone();
         map.show();
     },
     findFromAllEmptyCells: function () {
@@ -232,7 +243,8 @@ var map = {
             mapObject.BLOCKED_OBJECT = this.CURRENT_LOOP_INDEX;
             this.setObjectToMap({type : mapObject.type, xPos: newObj.xPos, yPos: newObj.yPos})
         } else if (mapObject.type === 'cow') {
-            this.COORDS_LIST[mapObject.xPos][mapObject.yPos] = this.EMPTY_OBJ;
+            this.COORDS_LIST[mapObject.xPos][mapObject.yPos].koefPossibilityEnter = 1;
+            this.COORDS_LIST[mapObject.xPos][mapObject.yPos] = new Empty();
 
             mapObject.xPos = newObj.xPos;
             mapObject.yPos = newObj.yPos;
@@ -257,40 +269,112 @@ var map = {
         if (!emptyCellsList) {
             return {xPos: mapObject.xPos, yPos: mapObject.yPos, energy: mapObject.energy - mapObject.moveStepEnergy}
         }
-        var randomMoveIndex = Math.floor(Math.random() * emptyCellsList.length);
+        var randomEmptyCell = this.randomUseKoef(emptyCellsList);
         var energy = Math.floor(Math.random() * (mapObject.maxRandomEnergy - mapObject.minRandomEnergy + 1) + mapObject.minRandomEnergy);
-        return {xPos: emptyCellsList[randomMoveIndex][0], yPos: emptyCellsList[randomMoveIndex][1], energy: energy};
+        return {xPos: randomEmptyCell.xPos, yPos: randomEmptyCell.yPos, energy: energy};
     },
+
+    randomUseKoef: function (list) {
+        var koefSum = 0;
+        for (var i=0; i<list.length; i++) {
+            koefSum += list[i].koefPossibilityEnter;
+        }
+
+        var etalon = 100 / koefSum;
+        for (var i=0; i<list.length; i++) {
+            list[i].procent = list[i].koefPossibilityEnter * etalon;
+        }
+
+        var randomNumber = Math.floor( Math.random() * 100 );
+        var procentSum = 0;
+        for (var i=0; i<list.length; i++) {
+            if (randomNumber >= procentSum && randomNumber < procentSum + list[i].procent) {
+                return list[i];
+            } else {
+                procentSum += list[i].procent;
+            }
+        }
+    },
+
     findEmptyCells: function (mapObject) {
         var emptyCellsList = [];
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos - 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos - 1, mapObject.yPos - 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos - 1,
+                    yPos: mapObject.yPos - 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos - 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos - 1, mapObject.yPos]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos - 1,
+                    yPos: mapObject.yPos,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos + 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos - 1, mapObject.yPos + 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos - 1,
+                    yPos: mapObject.yPos + 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos - 1][mapObject.yPos + 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos][mapObject.yPos - 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos, mapObject.yPos - 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos,
+                    yPos: mapObject.yPos - 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos][mapObject.yPos - 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos][mapObject.yPos + 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos, mapObject.yPos + 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos,
+                    yPos: mapObject.yPos + 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos][mapObject.yPos + 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos - 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos + 1, mapObject.yPos - 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos + 1,
+                    yPos: mapObject.yPos - 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos - 1].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos + 1, mapObject.yPos]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos + 1,
+                    yPos: mapObject.yPos,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos].koefPossibilityEnter
+                }
+            );
         }
         if (mapObject.possibleObjectsToMove.indexOf(this.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos + 1].type) > -1 ) {
-            emptyCellsList.push([mapObject.xPos + 1, mapObject.yPos + 1]);
+            emptyCellsList.push(
+                {
+                    xPos: mapObject.xPos + 1,
+                    yPos: mapObject.yPos + 1,
+                    koefPossibilityEnter: map.COORDS_LIST[mapObject.xPos + 1][mapObject.yPos + 1].koefPossibilityEnter
+                }
+            );
         }
 
         //умная корова
-        if (mapObject.type === 'cow' && emptyCellsList.filter(this.filterGrass).length !== 0) {
-            return emptyCellsList.filter(this.filterGrass);
+        var filterGrassList = emptyCellsList.filter(this.filterGrass);
+        if (mapObject.type === 'cow' && filterGrassList.length !== 0) {
+            return filterGrassList;
         }
         //
 
@@ -301,7 +385,7 @@ var map = {
         }
     },
     filterGrass: function (coords) {
-        return map.COORDS_LIST[coords[0]][coords[1]].type === 'grass';
+        return map.COORDS_LIST[coords.xPos][coords.yPos].type === 'grass';
     }
 };
 
