@@ -112,11 +112,11 @@ figure{
 	background-size: cover;
 }
 .cow{
-	background: url(/static/images/cow.jpg) 2px 50% no-repeat;
+	background: url(../../static/images/cow.jpg) 2px 50% no-repeat;
 	background-size: 74%;
 }
 .grass{
-	background: url(/static/images/grass.jpg) 2px 50% no-repeat;
+	background: url(../../static/images/grass.jpg) 2px 50% no-repeat;
 	background-size: 74%;
 }
 .cell-nav{
