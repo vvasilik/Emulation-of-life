@@ -100,7 +100,7 @@ figure{
 	bottom: 0;
 	width: 4px;
 	height: 0;
-	background: url(../../static/images/energy-half.jpg) 0 100% no-repeat;
+	background: url(../static/images/energy-half.jpg) 0 100% no-repeat;
 }
 .energy.e1{ height: 10px;}
 .energy.e2{ height: 20px;}
@@ -108,15 +108,15 @@ figure{
 .energy.e4{ height: 40px;}
 .energy.e5{ height: 50px;}
 .stone{
-	background: url(../../static/images/stone.jpg) no-repeat;
+	background: url(../static/images/stone.jpg) no-repeat;
 	background-size: cover;
 }
 .cow{
-	background: url(../../static/images/cow.jpg) 2px 50% no-repeat;
+	background: url(../static/images/cow.jpg) 2px 50% no-repeat;
 	background-size: 74%;
 }
 .grass{
-	background: url(../../static/images/grass.jpg) 2px 50% no-repeat;
+	background: url(../static/images/grass.jpg) 2px 50% no-repeat;
 	background-size: 74%;
 }
 .cell-nav{

@@ -11,13 +11,13 @@ gulp.task('css', function () {
       cascade: false
     }))
     .pipe(concat('all.css'))
-    .pipe(gulp.dest('product/css'))
+    .pipe(gulp.dest('dist'))
 });
 
 gulp.task('js', function () {
   gulp.src('dev/scripts/*.js')
     .pipe(concat('bundle.js'))
-    .pipe(gulp.dest('product/scripts'));
+    .pipe(gulp.dest('dist'));
 });
 
 
