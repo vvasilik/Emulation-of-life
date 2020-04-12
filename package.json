@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "gulp"
+    "start": "parcel serve index.html --port 2020",
+    "build": "parcel build index.html"
   },
   "repository": {
     "type": "git",
@@ -17,8 +18,6 @@
   },
   "homepage": "https://github.com/vvasilik/Emulation-of-life#readme",
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-concat": "^2.6.0"
+    "parcel": "^1.12.4"
   }
 }
